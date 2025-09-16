@@ -1,0 +1,1 @@
+A Django app to log expenses/income, set savings goals, and view analytics. Track monthly breakdowns with charts and export reports.
