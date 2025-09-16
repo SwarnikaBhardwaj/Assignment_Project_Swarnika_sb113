@@ -1,0 +1,12 @@
+Considered: 1) Mood DJ, 2) Campus Jam Finder, 3) FinTrack (chosen).
+Chose FinTrack for recruiter relevance (fintech CRUD + analytics). Risks: useful charts, time-series aggregation. Next: seed categories and transactions.
+
+wireframe: v1 covers login, dashboard with KPIs/charts, add-transaction core screen, empty/error state. Next: CSV export and budget alerts.
+
+Branching Strategy - GitHub Flow with short-lived branches (wireframes-v1, feature/models, feature/charts). PRs into main.
+
+Branch Usage Reflections - created wireframes-v1, added wireframes, opened PR, merged with descriptive message.
+
+Django Setup - startproject: fintrack; startapp: tracker. Short, descriptive names.
+
+Virtual Environment Choice - conda myenv-django in PyCharm for isolation and reproducibility.
