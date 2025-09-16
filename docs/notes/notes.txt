@@ -10,5 +10,9 @@ Branch Usage Reflections - created wireframes-v1, added wireframes, opened PR, m
 Django Setup - startproject: fintrack; startapp: tracker. Short, descriptive names.
 
 Virtual Environment Choice - conda myenv-django in PyCharm for isolation and reproducibility.
-# (append) Branch Usage Reflections
-Created wireframes-v1, committed v1 wireframes, opened PR, and merged into main.
+
+Branch Usage Reflections - Created wireframes-v1, committed v1 wireframes, opened PR, and merged into main.
+
+Branching Strategy - Using GitHub Flow with short-lived feature branches (wireframes-v1, feature/models, feature/charts). PRs into main; solo self-merge keeps main stable and history clear.
+
+Django Setup - startproject: fintrack; startapp: tracker. Names are short and map to scope. Verified runserver locally.
