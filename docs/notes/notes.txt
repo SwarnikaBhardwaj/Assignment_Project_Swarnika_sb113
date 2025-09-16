@@ -15,3 +15,6 @@ Created wireframes-v1, committed v1 wireframes, opened PR, and merged into main.
 
 # (append) Branching Strategy
 Using GitHub Flow with short-lived feature branches (wireframes-v1, feature/models, feature/charts). PRs into main; solo self-merge keeps main stable and history clear.
+
+# (append) Django Setup
+startproject: fintrack; startapp: tracker. Names are short and map to scope. Verified runserver locally.
