@@ -16,3 +16,13 @@ Branch Usage Reflections - Created wireframes-v1, committed v1 wireframes, opene
 Branching Strategy - Using GitHub Flow with short-lived feature branches (wireframes-v1, feature/models, feature/charts). PRs into main; solo self-merge keeps main stable and history clear.
 
 Django Setup - startproject: fintrack; startapp: tracker. Names are short and map to scope. Verified runserver locally.
+
+Rationale for my model:
+- Category (user, name, type) is unique per user/type; user=None supports global categories.
+- Transaction FK to Category uses PROTECT to preserve history; FK to User uses CASCADE.
+- Goal unique per (user, title) to avoid duplicates.
+- Ordering - Transactions newest first; Categories by type/name; Goals by deadline.
+
+Seeding the data (my reasoning) -
+- 3 global categories (Food & Drinks, Rent, Salary) + 1 user category (Cozy Coffee).
+- 7 transactions (mixed income/expenses). Verified uniqueness (duplicate Cozy Coffee rejected) and PROTECT (cannot delete used Rent).
