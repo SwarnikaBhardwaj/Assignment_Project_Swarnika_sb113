@@ -6,43 +6,11 @@ Summary of my data model -
 - Transactions belong to a User and a Category (on_delete=PROTECT keeps history).
 - Categories can be global (user=None) or user-specific and are unique per (user, name, type).
 - Goals are unique per (user, title) and store target/current progress.
-## ER Diagram
 
-```mermaid
-erDiagram
-    USER ||--o{ CATEGORY : "defines (optional)"
-    USER ||--o{ TRANSACTION : "owns"
-    USER ||--o{ GOAL : "owns"
-    CATEGORY ||--o{ TRANSACTION : "classifies"
+![ER Diagram](docs/notes/er_fintrack.png)
 
-    USER {
-        int id PK
-        string username
-    }
-    CATEGORY {
-        int id PK
-        int user_id FK "nullable for global"
-        string name
-        string type "EXPENSE/INCOME"
-    }
-    TRANSACTION {
-        int id PK
-        int user_id FK
-        int category_id FK
-        decimal amount
-        string kind "EXPENSE/INCOME"
-        date date
-        string merchant
-        text notes
-    }
-    GOAL {
-        int id PK
-        int user_id FK
-        string title
-        decimal target_amount
-        decimal current_amount
-        date deadline
-    }
+*Backup: ER diagram exported from mermaid.live*
+
 
 
 Constraints (documented):
