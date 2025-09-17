@@ -6,7 +6,9 @@ Summary of my data model -
 - Transactions belong to a User and a Category (on_delete=PROTECT keeps history).
 - Categories can be global (user=None) or user-specific and are unique per (user, name, type).
 - Goals are unique per (user, title) and store target/current progress.
+## ER Diagram
 
+```mermaid
 erDiagram
     USER ||--o{ CATEGORY : "defines (optional)"
     USER ||--o{ TRANSACTION : "owns"
@@ -41,6 +43,7 @@ erDiagram
         decimal current_amount
         date deadline
     }
+
 
 Constraints (documented):
 Category - UniqueConstraint(user, name, type)
