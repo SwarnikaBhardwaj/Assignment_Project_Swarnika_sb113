@@ -7,9 +7,6 @@ Summary of my data model -
 - Categories can be global (user=None) or user-specific and are unique per (user, name, type).
 - Goals are unique per (user, title) and store target/current progress.
 
-## ER Diagram
-
-```mermaid
 erDiagram
     USER ||--o{ CATEGORY : "defines (optional)"
     USER ||--o{ TRANSACTION : "owns"
@@ -25,7 +22,6 @@ erDiagram
         int user_id FK "nullable for global"
         string name
         string type "EXPENSE/INCOME"
-        UNIQUE (user_id, name, type)
     }
     TRANSACTION {
         int id PK
@@ -44,5 +40,10 @@ erDiagram
         decimal target_amount
         decimal current_amount
         date deadline
-        UNIQUE (user_id, title)
     }
+
+Constraints (documented):
+Category - UniqueConstraint(user, name, type)
+Goal -UniqueConstraint(user, title)
+Transaction.category uses on_delete=PROTECT (preserve history)
+Default ordering - Transaction newest first, category by type/name; Goal by deadline.
