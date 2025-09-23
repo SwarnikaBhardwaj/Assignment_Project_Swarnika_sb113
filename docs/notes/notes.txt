@@ -18,7 +18,7 @@ Branching Strategy - Using GitHub Flow with short-lived feature branches (wirefr
 Django Setup - startproject: fintrack; startapp: tracker. Names are short and map to scope. Verified runserver locally.
 
 Rationale for my model:
-- Category (user, name, type) is unique per user/type; user=None supports global categories.
+- Category (user, name, type) is unique per user/type, user=None supports global categories.
 - Transaction FK to Category uses PROTECT to preserve history, FK to User uses CASCADE.
 - Goal unique per (user, title) to avoid duplicates.
 - Ordering - Transactions newest first, categories by type/name, goals by deadline.
@@ -28,9 +28,16 @@ Seeding the data (my reasoning) -
 - 7 transactions (mixed income/expenses). Verified uniqueness (duplicate Cozy Coffee rejected) and PROTECT (cannot delete used Rent).
 
 Relationships in my models (Cardinality)
-- User 1 — *N* Category  (optional user scope, user=None = global categories)
-- User 1 — *N* Transaction
-- User 1 — *N* Goal
-- Category 1 — *N* Transaction  (Transaction.category uses PROTECT to preserve history)
+- User 1 - *N* Category  (optional user scope, user=None = global categories)
+- User 1 - *N* Transaction
+- User 1 - *N* Goal
+- Category 1 - *N* Transaction  (Transaction.category uses PROTECT to preserve history)
 This demonstrates multiple **one-to-many** relationships (many-to-one at the DB level via ForeignKey).
+
+For my views and templates (following MVT architecture shown in class)
+- Wrote two views: First is HttpResponse + manual loader, second is render() shortcut
+- Same template for both to show that templates are agnostic to how context is delivered
+- URLs are /transactions/raw/ ( for HttpResponse) and /transactions/ (render). Added ?empty=1 helper to demonstrate {% empty %}
+- Chose render() as the default going forward for readability and context processors
+
 
