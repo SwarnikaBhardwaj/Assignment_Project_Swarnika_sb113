@@ -1,0 +1,10 @@
+{% extends "tracker/base.html" %}
+{% block title %}Transaction Detail{% endblock %}
+{% block content %}
+<h2>Transaction Detail</h2>
+<p><strong>Date:</strong> {{ transaction.date }}</p>
+<p><strong>Type:</strong> {{ transaction.kind }}</p>
+<p><strong>Category:</strong> {{ transaction.category.name }}</p>
+<p><strong>Amount:</strong> ${{ transaction.amount }}</p>
+<p><strong>Merchant:</strong> {{ transaction.merchant|default:"—" }}</p>
+{% endblock %}

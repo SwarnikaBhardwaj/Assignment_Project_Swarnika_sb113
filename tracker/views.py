@@ -10,6 +10,7 @@ from django.template import loader
 from django.shortcuts import render
 from .models import Transaction
 from django.views.generic import ListView
+from django.views.generic import DetailView
 
 
 def transactions_httpresponse(request):
@@ -55,3 +56,8 @@ class TransactionListGenericView(ListView):
             return Transaction.objects.filter(user=self.request.user).order_by('-date', '-id')
         return Transaction.objects.none()
 
+
+class TransactionDetailView(DetailView):
+    model = Transaction
+    template_name = 'tracker/transaction_detail.html'
+    context_object_name = 'transaction'
