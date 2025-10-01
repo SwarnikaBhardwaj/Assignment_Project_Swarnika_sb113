@@ -5,6 +5,7 @@ from django.http import HttpResponse
 def home(request): return HttpResponse("FinTrack is running 🪙")
 
 from django.http import HttpResponse
+from django.views import View
 from django.template import loader
 from django.shortcuts import render
 from .models import Transaction
@@ -35,4 +36,11 @@ def transactions_render(request):
         "transactions": qs,
         "title": "Transactions (render)"
     })
+
+# this is going to be my base CBV
+class TransactionListBaseView(View):
+    def get(self, request):
+        qs = Transaction.objects.filter(user=request.user).order_by('-date', '-id') if request.user.is_authenticated else Transaction.objects.none()
+        context = {'transactions': qs, 'title': 'Transactions Base CBV'}
+        return render(request, 'tracker/transaction_list_base.html', context)
 
