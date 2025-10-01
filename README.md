@@ -18,3 +18,5 @@ Transaction.category uses on_delete=PROTECT (preserve history)
 Default ordering - Transaction newest first, category by type/name; Goal by deadline.
 
 Assignment 4 update - I wired two function based views for the Transactions list. One view returns an HttpResponse using loader.get_template() and the other uses the render() shortcut. Both share the same template (transaction_list.html) that extends base.html and implements a {% for %} … {% empty %} state.
+
+A5 Update - I added two class based views for transactions. One uses a base CBV with manual get() and the other uses a generic ListView. Templates extend base.html and include {% for %} loops with {% empty %}. I hve also refactored URL structure to include app urls separately.
