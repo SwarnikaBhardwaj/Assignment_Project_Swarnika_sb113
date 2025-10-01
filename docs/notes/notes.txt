@@ -40,4 +40,12 @@ For my views and templates (following MVT architecture shown in class)
 - URLs are /transactions/raw/ ( for HttpResponse) and /transactions/ (render). Added ?empty=1 helper to demonstrate {% empty %}
 - Chose render() as the default going forward for readability and context processors
 
+A5 - CBVs and URL refactor
+- Base CBV has a manual get() so it basically manually query model and then pass context to template.
+- Generic CBV has ListView so less boilerplate and then automatically passes object_list.
+- Generic views help reduce code and I can see look like easier to maintain.
+- URL refactor done through tracker app urls.py has all app routes and project urls.py only keeps admin.
+- Templates extend base.html {% for %} loops with {% empty %} demonstrate empty states.
+
+
 
