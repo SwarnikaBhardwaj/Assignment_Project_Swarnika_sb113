@@ -9,6 +9,7 @@ from django.views import View
 from django.template import loader
 from django.shortcuts import render
 from .models import Transaction
+from django.views.generic import ListView
 
 
 def transactions_httpresponse(request):
@@ -43,4 +44,14 @@ class TransactionListBaseView(View):
         qs = Transaction.objects.filter(user=request.user).order_by('-date', '-id') if request.user.is_authenticated else Transaction.objects.none()
         context = {'transactions': qs, 'title': 'Transactions Base CBV'}
         return render(request, 'tracker/transaction_list_base.html', context)
+
+class TransactionListGenericView(ListView):
+    model = Transaction
+    template_name = 'tracker/transaction_list_generic.html'
+    context_object_name = 'transactions'
+    ordering = ['-date', '-id']
+    def get_queryset(self):
+        if self.request.user.is_authenticated:
+            return Transaction.objects.filter(user=self.request.user).order_by('-date', '-id')
+        return Transaction.objects.none()
 

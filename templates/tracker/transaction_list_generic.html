@@ -1,0 +1,21 @@
+{% extends "tracker/base.html" %}
+{% block title %}Transactions Generic CBV{% endblock %}
+{% block content %}
+<h2>Transactions Generic CBV</h2>
+<table>
+  <tr>
+    <th>Date</th><th>Kind</th><th>Category</th><th>Amount</th><th>Merchant</th>
+  </tr>
+  {% for tx in transactions %}
+  <tr>
+    <td>{{ tx.date }}</td>
+    <td>{{ tx.kind }}</td>
+    <td>{{ tx.category.name }}</td>
+    <td>{{ tx.amount }}</td>
+    <td>{{ tx.merchant }}</td>
+  </tr>
+  {% empty %}
+  <tr><td colspan="5">No transactions yet, add some!</td></tr>
+  {% endfor %}
+</table>
+{% endblock %}
