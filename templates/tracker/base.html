@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>{% block title %}FinTrack{% endblock %}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto; margin:2rem; background:#0f172a; color:#e2e8f0}
+    a{color:#93c5fd}
+    .nav{margin-bottom:1rem}
+    .card{background:#111827; border:1px solid #1f2937; border-radius:12px; padding:1rem}
+    table{width:100%; border-collapse:collapse}
+    th,td{padding:.6rem; border-bottom:1px solid #1f2937}
+    th{color:#93c5fd; text-align:left}
+    .muted{color:#94a3b8}
+  </style>
+</head>
+<body>
+  <div class="nav">
+    <strong>FinTrack</strong> ·
+    <a href="/transactions/">Render view</a> ·
+    <a href="/transactions/raw/">HttpResponse view</a> ·
+    <a href="/transactions/?empty=1">Empty state</a>
+  </div>
+
+  {% block content %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,34 @@
+{% extends "tracker/base.html" %}
+{% block title %}{{ title }} · FinTrack{% endblock %}
+
+{% block content %}
+<div class="card">
+  <h2 style="margin-top:0">{{ title }}</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Date</th>
+        <th>Kind</th>
+        <th>Category</th>
+        <th>Amount</th>
+        <th class="muted">Merchant</th>
+      </tr>
+    </thead>
+    <tbody>
+    {% for tx in transactions %}
+      <tr>
+        <td>{{ tx.date }}</td>
+        <td>{{ tx.kind }}</td>
+        <td>{{ tx.category.name }}</td>
+        <td>${{ tx.amount }}</td>
+        <td class="muted">{{ tx.merchant|default:"—" }}</td>
+      </tr>
+    {% empty %}
+      <tr>
+        <td colspan="5" class="muted">No transactions yet. Try adding some in Admin, or use <code>?empty=1</code> to demo this state.</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}
