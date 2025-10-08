@@ -1,219 +1,265 @@
 {% extends "tracker/base.html" %}
+
 {% block title %}Financial Insights - FinTrack{% endblock %}
+
 {% block content %}
-<div style="max-width: 1200px; margin: 0 auto; padding: 20px;">
-    <h1 style="color: #2c3e50; margin-bottom: 10px;">💰 Financial Insights Dashboard</h1>
-    <p style="color: #7f8c8d; margin-bottom: 30px;">
-        Filter your transactions and see spending patterns
-    </p>
-    <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 30px;">
-        <h2 style="color: #34495e; margin-top: 0;">🔍 Filter Transactions</h2>
+<div class="row mb-4">
+    <div class="col">
+        <h1 class="display-5 fw-bold text-primary">
+            <i class="bi bi-graph-up-arrow"></i> Financial Insights Dashboard
+        </h1>
+        <p class="text-muted">Filter your transactions and see spending patterns</p>
+    </div>
+</div>
 
-        <form method="get" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
-            <div>
-                <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #555;">Search (merchant/notes):</label>
-                <input type="text" name="q" value="{{ search_query }}"
-                       placeholder="e.g., Starbucks"
-                       style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
-            </div>
+<div class="card mb-4">
+    <div class="card-header bg-light">
+        <h5 class="mb-0"><i class="bi bi-funnel"></i> Filter Transactions</h5>
+    </div>
+    <div class="card-body">
+        <form method="get">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label for="search" class="form-label">Search (merchant/notes)</label>
+                    <input type="text" class="form-control" id="search" name="q"
+                           value="{{ search_query }}" placeholder="e.g., Starbucks">
+                </div>
 
-            <div>
-                <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #555;">Category:</label>
-                <select name="category" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
-                    <option value="">All Categories</option>
-                    {% for cat in categories %}
-                        <option value="{{ cat.id }}" {% if category_filter == cat.id|stringformat:"s" %}selected{% endif %}>
-                            {{ cat.name }} ({{ cat.type }})
-                        </option>
-                    {% endfor %}
-                </select>
-            </div>
+                <div class="col-md-4">
+                    <label for="category" class="form-label">Category</label>
+                    <select class="form-select" id="category" name="category">
+                        <option value="">All Categories</option>
+                        {% for cat in categories %}
+                            <option value="{{ cat.id }}" {% if category_filter == cat.id|stringformat:"s" %}selected{% endif %}>
+                                {{ cat.name }} ({{ cat.type }})
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
 
-            <div>
-                <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #555;">Date From:</label>
-                <input type="date" name="date_from" value="{{ date_from }}"
-                       style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
-            </div>
+                <div class="col-md-2">
+                    <label for="date_from" class="form-label">Date From</label>
+                    <input type="date" class="form-control" id="date_from" name="date_from" value="{{ date_from }}">
+                </div>
 
-            <div>
-                <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #555;">Date To:</label>
-                <input type="date" name="date_to" value="{{ date_to }}"
-                       style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
-            </div>
+                <div class="col-md-2">
+                    <label for="date_to" class="form-label">Date To</label>
+                    <input type="date" class="form-control" id="date_to" name="date_to" value="{{ date_to }}">
+                </div>
 
-            <div>
-                <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #555;">Min Amount ($):</label>
-                <input type="number" step="0.01" name="min_amount" value="{{ min_amount }}"
-                       placeholder="0.00"
-                       style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
-            </div>
+                <div class="col-md-3">
+                    <label for="min_amount" class="form-label">Min Amount ($)</label>
+                    <input type="number" step="0.01" class="form-control" id="min_amount"
+                           name="min_amount" value="{{ min_amount }}" placeholder="0.00">
+                </div>
 
-            <div>
-                <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #555;">Max Amount ($):</label>
-                <input type="number" step="0.01" name="max_amount" value="{{ max_amount }}"
-                       placeholder="1000.00"
-                       style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
-            </div>
+                <div class="col-md-3">
+                    <label for="max_amount" class="form-label">Max Amount ($)</label>
+                    <input type="number" step="0.01" class="form-control" id="max_amount"
+                           name="max_amount" value="{{ max_amount }}" placeholder="1000.00">
+                </div>
 
-            <div style="display: flex; gap: 10px; align-items: flex-end;">
-                <button type="submit"
-                        style="background: #3498db; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">
-                    Apply Filters
-                </button>
-                <a href="{% url 'transaction_insights' %}"
-                   style="background: #95a5a6; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px; display: inline-block;">
-                    Clear
-                </a>
+                <div class="col-md-6 d-flex align-items-end gap-2">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-search"></i> Apply Filters
+                    </button>
+                    <a href="{% url 'transaction_insights' %}" class="btn btn-secondary">
+                        <i class="bi bi-x-circle"></i> Clear
+                    </a>
+                </div>
             </div>
         </form>
 
         {% if has_filters %}
-        <p style="margin-top: 15px; color: #27ae60; font-weight: bold;">
-            ✓ Filters applied - Showing {{ total_transactions }} result{{ total_transactions|pluralize }}
-        </p>
+        <div class="alert alert-success mt-3 mb-0" role="alert">
+            <i class="bi bi-check-circle"></i>
+            Filters applied - Showing <strong>{{ total_transactions }}</strong> result{{ total_transactions|pluralize }}
+        </div>
         {% endif %}
     </div>
+</div>
 
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-bottom: 30px;">
-
-        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px; border-radius: 8px; color: white;">
-            <h3 style="margin-top: 0;">📊 Overall Stats</h3>
-            <p style="font-size: 14px; margin: 5px 0;">Total Transactions: <strong>{{ total_transactions }}</strong></p>
-            <p style="font-size: 14px; margin: 5px 0;">Total Amount: <strong>${{ total_spent|floatformat:2 }}</strong></p>
-            <p style="font-size: 14px; margin: 5px 0;">Average: <strong>${{ average_transaction|floatformat:2 }}</strong></p>
-        </div>
-
-        <div style="background: white; padding: 20px; border-radius: 8px; border: 2px solid #e0e0e0;">
-            <h3 style="margin-top: 0; color: #2c3e50;">📁 By Category</h3>
-            {% if category_breakdown %}
-                {% for item in category_breakdown %}
-                <div style="margin-bottom: 15px;">
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
-                        <span style="font-weight: bold; color: #34495e;">{{ item.category__name }}</span>
-                        <span style="color: #7f8c8d;">${{ item.total|floatformat:2 }}</span>
-                    </div>
-                    <div style="background: #ecf0f1; height: 8px; border-radius: 4px; overflow: hidden;">
-                        <div style="background: {% if item.category__type == 'EXPENSE' %}#e74c3c{% else %}#2ecc71{% endif %};
-                                    height: 100%; width: {{ item.percentage|floatformat:0 }}%;"></div>
-                    </div>
-                    <p style="font-size: 12px; color: #95a5a6; margin: 3px 0;">
-                        {{ item.count }} transaction{{ item.count|pluralize }} · Avg: ${{ item.avg_amount|floatformat:2 }}
-                    </p>
-                </div>
-                {% endfor %}
-            {% else %}
-                <p style="color: #95a5a6; font-style: italic;">No categories to display</p>
-            {% endif %}
-        </div>
-
-        <div style="background: white; padding: 20px; border-radius: 8px; border: 2px solid #e0e0e0;">
-            <h3 style="margin-top: 0; color: #2c3e50;">🏪 Top Merchants</h3>
-            {% if top_merchants %}
-                <ol style="padding-left: 20px; margin: 0;">
-                {% for merchant in top_merchants %}
-                    <li style="margin-bottom: 10px;">
-                        <strong>{{ merchant.merchant }}</strong><br>
-                        <span style="color: #7f8c8d; font-size: 14px;">
-                            ${{ merchant.total_spent|floatformat:2 }}
-                            ({{ merchant.transaction_count }} visit{{ merchant.transaction_count|pluralize }})
-                        </span>
-                    </li>
-                {% endfor %}
-                </ol>
-            {% else %}
-                <p style="color: #95a5a6; font-style: italic;">No merchant data available</p>
-            {% endif %}
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card stat-card text-white">
+            <div class="card-body">
+                <h5 class="card-title"><i class="bi bi-bar-chart"></i> Overall Stats</h5>
+                <p class="mb-1">Total Transactions: <strong>{{ total_transactions }}</strong></p>
+                <p class="mb-1">Total Amount: <strong>${{ total_spent|floatformat:2 }}</strong></p>
+                <p class="mb-0">Average: <strong>${{ average_transaction|floatformat:2 }}</strong></p>
+            </div>
         </div>
     </div>
 
-    {% if monthly_spending %}
-    <div style="background: white; padding: 20px; border-radius: 8px; border: 2px solid #e0e0e0; margin-bottom: 30px;">
-        <h3 style="margin-top: 0; color: #2c3e50;">📈 Monthly Spending Trends</h3>
-        <table style="width: 100%; border-collapse: collapse;">
-            <thead>
-                <tr style="background: #f8f9fa; border-bottom: 2px solid #dee2e6;">
-                    <th style="padding: 10px; text-align: left;">Month</th>
-                    <th style="padding: 10px; text-align: right;">Total Spent</th>
-                    <th style="padding: 10px; text-align: right;">Transactions</th>
-                    <th style="padding: 10px; text-align: right;">Avg per Transaction</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for month in monthly_spending %}
-                <tr style="border-bottom: 1px solid #e0e0e0;">
-                    <td style="padding: 10px;">{{ month.month|date:"F Y" }}</td>
-                    <td style="padding: 10px; text-align: right; font-weight: bold;">${{ month.total|floatformat:2 }}</td>
-                    <td style="padding: 10px; text-align: right;">{{ month.count }}</td>
-                    <td style="padding: 10px; text-align: right;">${{ month.total|floatformat:2|default:"0.00" }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-pie-chart"></i> By Category</h5>
+            </div>
+            <div class="card-body">
+                {% if category_breakdown %}
+                    {% for item in category_breakdown %}
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-1">
+                            <span class="fw-bold">{{ item.category__name }}</span>
+                            <span class="text-muted">${{ item.total|floatformat:2 }}</span>
+                        </div>
+                        <div class="progress">
+                            <div class="progress-bar {% if item.category__type == 'EXPENSE' %}bg-danger{% else %}bg-success{% endif %}"
+                                 role="progressbar"
+                                 style="width: {{ item.percentage|floatformat:0 }}%"
+                                 aria-valuenow="{{ item.percentage|floatformat:0 }}"
+                                 aria-valuemin="0"
+                                 aria-valuemax="100">
+                            </div>
+                        </div>
+                        <small class="text-muted">
+                            {{ item.count }} transaction{{ item.count|pluralize }} · Avg: ${{ item.avg_amount|floatformat:2 }}
+                        </small>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-muted fst-italic">No categories to display</p>
+                {% endif %}
+            </div>
+        </div>
     </div>
-    {% endif %}
 
-    <div style="background: white; padding: 20px; border-radius: 8px; border: 2px solid #e0e0e0;">
-        <h2 style="color: #2c3e50; margin-top: 0;">📋 Transaction List</h2>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-shop"></i> Top Merchants</h5>
+            </div>
+            <div class="card-body">
+                {% if top_merchants %}
+                    <ol class="list-group list-group-numbered list-group-flush">
+                    {% for merchant in top_merchants %}
+                        <li class="list-group-item d-flex justify-content-between align-items-start">
+                            <div class="ms-2 me-auto">
+                                <div class="fw-bold">{{ merchant.merchant }}</div>
+                                <small class="text-muted">
+                                    ${{ merchant.total_spent|floatformat:2 }}
+                                    ({{ merchant.transaction_count }} visit{{ merchant.transaction_count|pluralize }})
+                                </small>
+                            </div>
+                        </li>
+                    {% endfor %}
+                    </ol>
+                {% else %}
+                    <p class="text-muted fst-italic">No merchant data available</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
 
-        {% if transactions %}
-            <table style="width: 100%; border-collapse: collapse;">
-                <thead>
-                    <tr style="background: #f8f9fa; border-bottom: 2px solid #dee2e6;">
-                        <th style="padding: 10px; text-align: left;">Date</th>
-                        <th style="padding: 10px; text-align: left;">Merchant</th>
-                        <th style="padding: 10px; text-align: left;">Category</th>
-                        <th style="padding: 10px; text-align: right;">Amount</th>
-                        <th style="padding: 10px; text-align: left;">Notes</th>
+{% if monthly_spending %}
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="mb-0"><i class="bi bi-calendar3"></i> Monthly Spending Trends</h5>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Month</th>
+                        <th class="text-end">Total Spent</th>
+                        <th class="text-end">Transactions</th>
+                        <th class="text-end">Avg per Transaction</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {% for transaction in transactions %}
-                    <tr style="border-bottom: 1px solid #e0e0e0;">
-                        <td style="padding: 10px;">{{ transaction.date|date:"M d, Y" }}</td>
-                        <td style="padding: 10px;">{{ transaction.merchant|default:"—" }}</td>
-                        <td style="padding: 10px;">
-                            <span style="background: {% if transaction.category.type == 'EXPENSE' %}#fee{% else %}#efe{% endif %};
-                                         padding: 3px 8px; border-radius: 3px; font-size: 12px;">
-                                {{ transaction.category.name }}
-                            </span>
-                        </td>
-                        <td style="padding: 10px; text-align: right; font-weight: bold;
-                                   color: {% if transaction.category.type == 'EXPENSE' %}#e74c3c{% else %}#2ecc71{% endif %};">
-                            ${{ transaction.amount|floatformat:2 }}
-                        </td>
-                        <td style="padding: 10px; color: #7f8c8d; font-size: 14px;">
-                            {{ transaction.notes|truncatewords:10|default:"—" }}
-                        </td>
+                    {% for month in monthly_spending %}
+                    <tr>
+                        <td>{{ month.month|date:"F Y" }}</td>
+                        <td class="text-end fw-bold">${{ month.total|floatformat:2 }}</td>
+                        <td class="text-end">{{ month.count }}</td>
+                        <td class="text-end">${{ month.total|floatformat:2|default:"0.00" }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
+        </div>
+    </div>
+</div>
+{% endif %}
 
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0"><i class="bi bi-list-ul"></i> Transaction List</h5>
+    </div>
+    <div class="card-body p-0">
+        {% if transactions %}
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Date</th>
+                            <th>Merchant</th>
+                            <th>Category</th>
+                            <th class="text-end">Amount</th>
+                            <th>Notes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for transaction in transactions %}
+                        <tr>
+                            <td>{{ transaction.date|date:"M d, Y" }}</td>
+                            <td>{{ transaction.merchant|default:"—" }}</td>
+                            <td>
+                                <span class="badge {% if transaction.category.type == 'EXPENSE' %}expense-badge{% else %}income-badge{% endif %}">
+                                    {{ transaction.category.name }}
+                                </span>
+                            </td>
+                            <td class="text-end fw-bold {% if transaction.category.type == 'EXPENSE' %}text-danger{% else %}text-success{% endif %}">
+                                ${{ transaction.amount|floatformat:2 }}
+                            </td>
+                            <td class="text-muted">{{ transaction.notes|truncatewords:10|default:"—" }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
             {% if is_paginated %}
-            <div style="margin-top: 20px; text-align: center;">
-                {% if page_obj.has_previous %}
-                    <a href="?page=1" style="padding: 8px 12px; margin: 0 5px; text-decoration: none; color: #3498db;">« First</a>
-                    <a href="?page={{ page_obj.previous_page_number }}" style="padding: 8px 12px; margin: 0 5px; text-decoration: none; color: #3498db;">‹ Previous</a>
-                {% endif %}
+            <div class="card-footer">
+                <nav aria-label="Transaction pagination">
+                    <ul class="pagination justify-content-center mb-0">
+                        {% if page_obj.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page=1">« First</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.previous_page_number }}">‹ Previous</a>
+                            </li>
+                        {% endif %}
 
-                <span style="padding: 8px 12px; margin: 0 5px;">
-                    Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
-                </span>
+                        <li class="page-item disabled">
+                            <span class="page-link">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+                        </li>
 
-                {% if page_obj.has_next %}
-                    <a href="?page={{ page_obj.next_page_number }}" style="padding: 8px 12px; margin: 0 5px; text-decoration: none; color: #3498db;">Next ›</a>
-                    <a href="?page={{ page_obj.paginator.num_pages }}" style="padding: 8px 12px; margin: 0 5px; text-decoration: none; color: #3498db;">Last »</a>
-                {% endif %}
+                        {% if page_obj.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next ›</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Last »</a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
             </div>
             {% endif %}
 
         {% empty %}
-            <div style="text-align: center; padding: 40px; color: #95a5a6;">
-                <p style="font-size: 48px; margin: 0;">🔍</p>
-                <h3 style="margin: 10px 0;">No transactions found</h3>
-                <p style="margin: 5px 0;">
+            <div class="text-center py-5">
+                <i class="bi bi-search display-1 text-muted"></i>
+                <h3 class="mt-3">No transactions found</h3>
+                <p class="text-muted">
                     {% if has_filters %}
-                        Try adjusting your filters or <a href="{% url 'transaction_insights' %}" style="color: #3498db;">clear all filters</a>
+                        Try adjusting your filters or <a href="{% url 'transaction_insights' %}">clear all filters</a>
                     {% else %}
                         Start by adding some transactions in the admin panel
                     {% endif %}
@@ -222,4 +268,5 @@
         {% endif %}
     </div>
 </div>
+
 {% endblock %}

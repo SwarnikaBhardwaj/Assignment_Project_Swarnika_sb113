@@ -47,5 +47,33 @@ A5 - CBVs and URL refactor
 - URL refactor done through tracker app urls.py has all app routes and project urls.py only keeps admin.
 - Templates extend base.html {% for %} loops with {% empty %} demonstrate empty states.
 
+A6 - Filtering and aggregation notes
+- Learned that filtering narrows down querysets based on conditions
+  - Used .filter() with Q objects for OR conditions (merchant or notes search)
+  - Date range filtering with __gte and __lte lookups
+  - Amount range filtering using Decimal comparison
+
+- Aggregation computes summary statistics across querysets (some examples here are SUM, COUNT, AVG)
+  - aggregate() returns a dictionry with overall stats like total, average
+  - annotate() adds computed fields to each row in a grouped queryset
+  - used Sum() to calculate total spending per category
+  - used Count() to count transactions per merchant and per month
+
+- Grouping is done with .values() followed by .annotate()
+  - Category breakdown - i grouped by category__name, summed amounts
+  - Top merchants - i grouped by merchant, counted transactions
+  - Monthly trends - i used TruncMonth() to group by month, then summed
+
+- All aggregations dynamically respond to filter parameters
+  - Applied get_queryset() filters before computing aggregations
+  - This shows filtered totals and not just overall totals
+
+- Visual enhancements -  progress bars now show category spending as percentage of total (yay)
+  - Calculated percentages in view context for template use
+  - Color coded expenses so red vs income green (thank you Blake)
+
+- Edge cases handled {% empty %} shows friendly message when no results
+  - checks for None values in aggregations with "or 0" and "or Decimal('0.00')"
+  - filter out empty merchant names before aggregating top merchants
 
 
