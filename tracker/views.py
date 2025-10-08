@@ -8,9 +8,13 @@ from django.http import HttpResponse
 from django.views import View
 from django.template import loader
 from django.shortcuts import render
-from .models import Transaction
-from django.views.generic import ListView
+
 from django.views.generic import DetailView
+from .models import Transaction, Category
+from django.views.generic import ListView
+from django.db.models import Sum, Count, Avg, Q
+from django.db.models.functions import TruncMonth
+from decimal import Decimal
 
 
 def transactions_httpresponse(request):
