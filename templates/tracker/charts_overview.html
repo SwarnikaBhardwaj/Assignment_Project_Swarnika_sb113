@@ -1,0 +1,107 @@
+{% extends "tracker/base.html" %}
+{% load static %}
+
+{% block title %}Charts & Analytics - FinTrack{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <h1 class="mb-2">
+            <i class="bi bi-bar-chart-fill text-primary"></i> Charts & Analytics
+        </h1>
+        <p class="text-muted">Visual insights into your spending patterns</p>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card stat-card">
+            <div class="card-body text-center">
+                <p class="stat-label mb-0">Total Transactions</p>
+                <h2 class="stat-number">{{ total_transactions }}</h2>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card stat-card">
+            <div class="card-body text-center">
+                <p class="stat-label mb-0">Total Spent</p>
+                <h2 class="stat-number">${{ total_spent|floatformat:2 }}</h2>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card stat-card">
+            <div class="card-body text-center">
+                <p class="stat-label mb-0">Average Transaction</p>
+                <h2 class="stat-number">${{ average_transaction|floatformat:2 }}</h2>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-lg-6">
+        <div class="chart-card">
+            <h3><i class="bi bi-calendar3"></i> Monthly Spending Trends</h3>
+            <img src="{% url 'chart_monthly_spending' %}" alt="Monthly Spending Bar Chart">
+            <p class="chart-description">Total spending for the last 6 months</p>
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="chart-card">
+            <h3><i class="bi bi-pie-chart-fill"></i> Expense Breakdown</h3>
+            <img src="{% url 'chart_category_pie' %}" alt="Category Breakdown Pie Chart">
+            <p class="chart-description">Top 6 expense categories by total amount</p>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-light">
+                <h5 class="mb-0"><i class="bi bi-table"></i> Detailed Category Breakdown</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Category</th>
+                                <th>Type</th>
+                                <th class="text-end">Total Spent</th>
+                                <th class="text-end">Transactions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in category_breakdown %}
+                            <tr>
+                                <td class="fw-bold">{{ item.category__name }}</td>
+                                <td>
+                                    <span class="badge {% if item.category__type == 'EXPENSE' %}expense-badge{% else %}income-badge{% endif %}">
+                                        {{ item.category__type }}
+                                    </span>
+                                </td>
+                                <td class="text-end fw-bold">${{ item.total|floatformat:2 }}</td>
+                                <td class="text-end">{{ item.count }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="4" class="text-center text-muted py-4">
+                                    No transaction data available
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
