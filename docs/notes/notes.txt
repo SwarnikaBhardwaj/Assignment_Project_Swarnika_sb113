@@ -85,3 +85,14 @@ A7 - Charts and static files notes
 -Custom CSS uses Inter font from Google Fonts for modern typography. Enhanced card shadows with --card-shadow variable. Stat cards use gradient background matching navbar theme. Chart images display block width 100% for responsive sizing.
 - all my aggregations use ORM queries from Transaction model. Overall stats use aggregate(total_transactions=Count('id'), total_spent=Sum('amount'), average_transaction=Avg('amount')) returning dictionary. Monthly uses TruncMonth() converting dates to month grouping. Category breakdown uses values('category__name').annotate(total=Sum('amount')) with double underscore traversing foreign key.
 Save.
+
+A8 - GET, POST and forms
+- CSRF stands for Cross Site Request Forgery amd its an attack where a bad website tricks your browser into submitting forms to other sites youre logged into. I added it with the csrf_token tag in templates
+- Form submission is done through:
+- User visits form page Django shows empty form using get request -> user fills out form and clicks submit browser sends POST request with form data->Django view receives the data and creates a form instance with request dot POST->view calls form dot is_valid which runs all validation rules->if valid Django processes the data saves to database ->if invalid Django re renders the form with error messages shown next to problem fields
+- FBV pros you can see all the logic in one place easier to debug easier for beginners to understand more flexible for complex logic
+- FBV cons more repetitive code you have to write if request dot method equals POST yourself have to handle GET and POST manually
+- CBV pros much less code Django handles GET POST automatically built in methods like form_valid easier to reuse code
+- Use GET when youre searching filtering or reading data because GET puts data in URL which can be bookmarked and shared
+- Use POST when youre creating updating or deleting data because POST hides data from URL and includes CSRF protection
+- GET requests should never modify database only read from it

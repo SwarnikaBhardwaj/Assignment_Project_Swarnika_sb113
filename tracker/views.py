@@ -3,9 +3,6 @@ from django.shortcuts import render
 # Create your views here.
 from django.http import HttpResponse
 def home(request): return HttpResponse("FinTrack is running 🪙")
-
-from django.http import HttpResponse
-from django.views import View
 from django.template import loader
 from django.shortcuts import render
 
@@ -24,6 +21,11 @@ from io import BytesIO
 from django.http import HttpResponse
 from django.views import View
 from django.views.generic import TemplateView
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from .forms import TransactionCreateForm
+from django.views.generic import FormView
+from django.urls import reverse_lazy
 
 
 def transactions_httpresponse(request):
@@ -280,3 +282,60 @@ class ChartsOverviewView(TemplateView):
         ).order_by('-total')
         context['category_breakdown'] = category_breakdown
         return context
+
+
+def transaction_create_fbv(request):
+    if request.method == 'POST':
+        form = TransactionCreateForm(request.POST)
+        if form.is_valid():
+            transaction = form.save(commit=False)
+            transaction.user = request.user
+            transaction.save()
+            messages.success(request, 'Transaction created successfully!')
+            return redirect('transactions_render')
+        else:
+            messages.error(request, 'Please fix the errors below')
+    else:
+        form = TransactionCreateForm()
+    return render(request, 'tracker/create_fbv.html', {
+        'form': form
+    })
+
+
+class TransactionCreateCBV(FormView):
+    form_class = TransactionCreateForm
+    template_name = 'tracker/create_cbv.html'
+    success_url = reverse_lazy('transactions_render')
+    def form_valid(self, form):
+        transaction = form.save(commit=False)
+        transaction.user = self.request.user
+        transaction.save()
+        messages.success(self.request, 'Transaction created successfully (CBV)!')
+        return super().form_valid(form)
+    def form_invalid(self, form):
+        messages.error(self.request, 'Please fix the errors below')
+        return super().form_invalid(form)
+
+
+from .forms import TransactionSearchForm
+def transaction_search(request):
+    form = TransactionSearchForm(request.GET)
+    transactions = Transaction.objects.all()
+    if form.is_valid():
+        search_query = form.cleaned_data.get('search_query')
+        min_amount = form.cleaned_data.get('min_amount')
+        category = form.cleaned_data.get('category')
+        if search_query:
+            from django.db.models import Q
+            transactions = transactions.filter(
+                Q(merchant__icontains=search_query) |
+                Q(notes__icontains=search_query)
+            )
+        if min_amount:
+            transactions = transactions.filter(amount__gte=min_amount)
+        if category:
+            transactions = transactions.filter(category=category)
+    return render(request, 'tracker/search_transaction.html', {
+        'form': form,
+        'transactions': transactions
+    })

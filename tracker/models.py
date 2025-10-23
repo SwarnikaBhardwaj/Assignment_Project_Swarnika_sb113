@@ -59,8 +59,8 @@ class Transaction(models.Model):
             raise ValidationError({
                 "kind": "Transaction kind must match the linked Category type (e.g., EXPENSE or INCOME)."
             })
-        if self.amount <= 0:
-            raise ValidationError({"amount": "Amount must be greater than 0."})
+        if self.amount is not None and self.amount <= 0:
+            raise ValidationError('Amount must be greater than zero')
 
     def save(self, *args, **kwargs):
         self.full_clean()

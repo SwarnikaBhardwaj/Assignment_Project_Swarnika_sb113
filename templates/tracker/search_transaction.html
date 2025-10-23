@@ -1,0 +1,58 @@
+{% extends "tracker/base.html" %}
+
+{% block title %}Search Transactions{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h2>Search Transactions</h2>
+        <form method="get" class="mb-4">
+            <div class="row">
+                <div class="col-md-4">
+                    {{ form.search_query.label_tag }}
+                    {{ form.search_query }}
+                </div>
+                <div class="col-md-3">
+                    {{ form.min_amount.label_tag }}
+                    {{ form.min_amount }}
+                </div>
+                <div class="col-md-3">
+                    {{ form.category.label_tag }}
+                    {{ form.category }}
+                </div>
+                <div class="col-md-2">
+                    <label>&nbsp;</label>
+                    <button type="submit" class="btn btn-primary w-100">Search</button>
+                </div>
+            </div>
+        </form>
+        <h3>Results ({{ transactions.count }} found)</h3>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Merchant</th>
+                    <th>Amount</th>
+                    <th>Category</th>
+                    <th>Date</th>
+                    <th>Notes</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for transaction in transactions %}
+                <tr>
+                    <td>{{ transaction.merchant }}</td>
+                    <td>${{ transaction.amount }}</td>
+                    <td>{{ transaction.category.name }}</td>
+                    <td>{{ transaction.date }}</td>
+                    <td>{{ transaction.notes|truncatewords:10 }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="text-center">No transactions found</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
