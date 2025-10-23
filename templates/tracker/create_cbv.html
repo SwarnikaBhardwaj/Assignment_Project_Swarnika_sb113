@@ -1,10 +1,10 @@
 {% extends "tracker/base.html" %}
 
-{% block title %}Create Transaction (CBV){% endblock %}
+{% block title %}Submit any Transaction (this is CBV){% endblock %}
 {% block content %}
 <div class="row">
     <div class="col-lg-6">
-        <h2>Create Transaction (Class-Based View)</h2>
+        <h2>Submit any Transaction (this is Class based view)</h2>
         <form method="post">
             {% csrf_token %}
             {% if messages %}

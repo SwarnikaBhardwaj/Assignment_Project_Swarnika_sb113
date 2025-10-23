@@ -291,10 +291,10 @@ def transaction_create_fbv(request):
             transaction = form.save(commit=False)
             transaction.user = request.user
             transaction.save()
-            messages.success(request, 'Transaction created successfully!')
+            messages.success(request, 'Transaction created successfully. Reminder to stay within your budget :)')
             return redirect('transactions_render')
         else:
-            messages.error(request, 'Please fix the errors below')
+            messages.error(request, 'Please fix the errors below :(')
     else:
         form = TransactionCreateForm()
     return render(request, 'tracker/create_fbv.html', {
@@ -310,10 +310,10 @@ class TransactionCreateCBV(FormView):
         transaction = form.save(commit=False)
         transaction.user = self.request.user
         transaction.save()
-        messages.success(self.request, 'Transaction created successfully (CBV)!')
+        messages.success(self.request, 'Transaction created successfully. Reminder to stay within your budget :)')
         return super().form_valid(form)
     def form_invalid(self, form):
-        messages.error(self.request, 'Please fix the errors below')
+        messages.error(self.request, 'Please fix the errors below :(')
         return super().form_invalid(form)
 
 

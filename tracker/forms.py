@@ -8,7 +8,7 @@ class TransactionSearchForm(forms.Form):
         required=False,
         label='Search',
         widget=forms.TextInput(attrs={
-            'placeholder': 'Search by merchant or notes...',
+            'placeholder': 'Search by a merchant or even notes',
             'class': 'form-control'
         })
     )
@@ -34,7 +34,7 @@ class TransactionCreateForm(forms.ModelForm):
         widgets = {
             'merchant': forms.TextInput(attrs={
                 'class': 'form-control',
-                'placeholder': 'Where did you spend? (e.g., Starbucks, Amazon)'
+                'placeholder': 'Where did you spend today? '
             }),
             'amount': forms.NumberInput(attrs={
                 'class': 'form-control',
@@ -49,7 +49,7 @@ class TransactionCreateForm(forms.ModelForm):
             }),
             'notes': forms.Textarea(attrs={
                 'class': 'form-control',
-                'placeholder': 'Optional notes about this transaction',
+                'placeholder': 'Optional notes you want to write about this transaction',
                 'rows': 3
             })
         }
