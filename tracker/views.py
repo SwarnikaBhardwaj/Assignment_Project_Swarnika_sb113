@@ -403,3 +403,21 @@ def transaction_chart_from_api(request):
     plt.close(fig)
     return HttpResponse(buffer.getvalue(), content_type='image/png')
 
+
+def demo_text_response(request):
+    data = {
+        'message': 'This is plain text',
+        'count': 42,
+        'items': ['Idli', 'Dosa', 'Sambar']
+    }
+    json_string = json.dumps(data)
+    return HttpResponse(json_string, content_type='text/plain')
+
+def demo_json_response(request):
+    data = {
+        'message': 'This is proper JSON',
+        'count': 42,
+        'items': ['Idli', 'Dosa', 'Sambar']
+    }
+    return JsonResponse(data)
+

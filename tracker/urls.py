@@ -17,4 +17,6 @@ urlpatterns = [
     path('transaction/search/', views.transaction_search, name='transaction_search'),
     path('api/transactions/summary/', views.api_transaction_summary, name='api_transaction_summary'),
     path('api/transactions/by-category/', views.APITransactionsByCategory.as_view(), name='api_transactions_by_category'),
+    path('demo/text/', views.demo_text_response, name='demo_text'),
+    path('demo/json/', views.demo_json_response, name='demo_json'),
 ]
