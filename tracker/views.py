@@ -341,6 +341,8 @@ def transaction_search(request):
 
 from django.http import JsonResponse
 from datetime import datetime, timedelta
+import urllib.request
+import json
 
 def api_transaction_summary(request):
     total_transactions = Transaction.objects.count()
@@ -374,3 +376,30 @@ class APITransactionsByCategory(View):
             'results': results
         }
         return JsonResponse(response_data)
+
+
+def transaction_chart_from_api(request):
+    api_url = request.build_absolute_uri('/api/transactions/by-category/')
+    with urllib.request.urlopen(api_url) as response:
+        data = json.loads(response.read().decode())
+    categories = data['results']
+    category_names = [item['category'] for item in categories]
+    amounts = [item['total_spent'] for item in categories]
+    fig, ax = plt.subplots(figsize=(10, 6))
+    bars = ax.bar(category_names, amounts, color='#667eea', edgecolor='#764ba2', linewidth=2)
+    ax.set_ylabel('Total Spent ($)', fontsize=12, fontweight='bold')
+    ax.set_xlabel('Category', fontsize=12, fontweight='bold')
+    ax.set_title('Spending by Category (From API Data)', fontsize=14, fontweight='bold')
+    for bar in bars:
+        height = bar.get_height()
+        ax.text(bar.get_x() + bar.get_width() / 2., height,
+                f'${height:.2f}',
+                ha='center', va='bottom', fontsize=10)
+    plt.xticks(rotation=45, ha='right')
+    plt.tight_layout()
+    buffer = BytesIO()
+    plt.savefig(buffer, format='png', dpi=120, bbox_inches='tight')
+    buffer.seek(0)
+    plt.close(fig)
+    return HttpResponse(buffer.getvalue(), content_type='image/png')
+
