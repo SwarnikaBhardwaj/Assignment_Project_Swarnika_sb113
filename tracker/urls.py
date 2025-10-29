@@ -15,4 +15,6 @@ urlpatterns = [
     path('transaction/create/fbv/', views.transaction_create_fbv, name='transaction_create_fbv'),
     path('transaction/create/cbv/', views.TransactionCreateCBV.as_view(), name='transaction_create_cbv'),
     path('transaction/search/', views.transaction_search, name='transaction_search'),
+    path('api/transactions/summary/', views.api_transaction_summary, name='api_transaction_summary'),
+    path('api/transactions/by-category/', views.APITransactionsByCategory.as_view(), name='api_transactions_by_category'),
 ]

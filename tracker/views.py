@@ -1,10 +1,8 @@
 from django.shortcuts import render
 
 # Create your views here.
-from django.http import HttpResponse
 def home(request): return HttpResponse("FinTrack is running 🪙")
 from django.template import loader
-from django.shortcuts import render
 
 from django.views.generic import DetailView
 from .models import Transaction, Category
@@ -339,3 +337,40 @@ def transaction_search(request):
         'form': form,
         'transactions': transactions
     })
+
+
+from django.http import JsonResponse
+from datetime import datetime, timedelta
+
+def api_transaction_summary(request):
+    total_transactions = Transaction.objects.count()
+    total_amount = Transaction.objects.aggregate(Sum('amount'))['amount__sum'] or 0
+    thirty_days_ago = datetime.now() - timedelta(days=30)
+    recent_count = Transaction.objects.filter(date__gte=thirty_days_ago).count()
+    data = {
+        'total_transactions': total_transactions,
+        'total_amount': float(total_amount),
+        'recent_transactions_30_days': recent_count,
+        'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    }
+    return JsonResponse(data)
+
+
+class APITransactionsByCategory(View):
+    def get(self, request):
+        category_data = Transaction.objects.values('category__name').annotate(
+            total_spent=Sum('amount'),
+            transaction_count=Count('id')
+        ).order_by('-total_spent')
+        results = []
+        for item in category_data:
+            results.append({
+                'category': item['category__name'],
+                'total_spent': float(item['total_spent']),
+                'count': item['transaction_count']
+            })
+        response_data = {
+            'count': len(results),
+            'results': results
+        }
+        return JsonResponse(response_data)
