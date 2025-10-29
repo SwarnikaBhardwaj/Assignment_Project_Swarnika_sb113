@@ -96,3 +96,17 @@ A8 - GET, POST and forms
 - Use GET when youre searching filtering or reading data because GET puts data in URL which can be bookmarked and shared
 - Use POST when youre creating updating or deleting data because POST hides data from URL and includes CSRF protection
 - GET requests should never modify database only read from it
+
+A9 - APIS and charts
+What is a json api: its basically a url that returns data instead of html, the data is in json format which is like a python dictionary but in text form.
+- anyone can hit that url and get the data
+- way better than html because programs can easily parse json but parsing html is a nightmare :(
+httpresponse vs jsonresponse
+- httpresponse is the basic response class in django - it just returns whatever content you give it
+- jsonresponse is a subclass that makes json specifically, it automatically converts your python dict to json text
+- basically jsonresponse does all the json things for you so you dont have to remember
+how the chart view works
+- this was actually pretty clever once i understood it. my chart view uses urllib to make an http request to my own api
+- it fetches the json data, parses it with json.loads, then extracts the numbers and category names, uses matplotlib to draw a bar chart just like we did before and returns the chart as a png image
+- so the data flow is  database → api view returns json → chart view fetches that json → makes chart → returns png
+
