@@ -110,3 +110,20 @@ how the chart view works
 - it fetches the json data, parses it with json.loads, then extracts the numbers and category names, uses matplotlib to draw a bar chart just like we did before and returns the chart as a png image
 - so the data flow is  database → api view returns json → chart view fetches that json → makes chart → returns png
 
+A10 - External APIs
+what api I picked and why
+- I used the exchangerate-api.com currency converter api. made sense for fintrack because if someone travels or buys stuff internationally they might want to see prices in different currencies
+- its completely free and doesnt need an api key which was nice - returns json with exchange rates for like 160 currencies. the base url is https://api.exchangerate-api.com/v4/latest/USD and it gives you rates relative to USD
+what I pulled from the API
+- base currency (USD in my case), the rates dictionary which has all the exchange rates, the date when rates were last updated
+- I specifically pull out just the target currency rate the user asked for instead of returning all 160 currencies. my cleaned response has: original amount, target currency, exchange rate, converted amount, and last updated date
+how i handled errors and timeouts
+- used timeout equals 5 in the requests.get call so it doesnt hang forever if the api is slow
+- wrapped everything in try except blocks to catch different error types, used response.raise_for_status too
+- also validated the amount parameter to make sure its actually a number before calling the api
+what the final json looks like
+- {"ok": true, "original_amount": 100, "original_currency": "USD", "target_currency": "EUR", "exchange_rate": 0.92, "converted_amount": 92.0, "last_updated": "2024-10-23"}
+- if theres an error it looks like: {"ok": false, "error": "Amount must be a valid number"}
+api limitations and quirks I noticed
+- the api updates rates once per day not in real time so if you check multiple times you get the same rates
+- if you request a currency that doesnt exist the api still returns 200 but that currency just wont be in the rates dict so i had to check for that
