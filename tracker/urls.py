@@ -19,4 +19,6 @@ urlpatterns = [
     path('api/transactions/by-category/', views.APITransactionsByCategory.as_view(), name='api_transactions_by_category'),
     path('demo/text/', views.demo_text_response, name='demo_text'),
     path('demo/json/', views.demo_json_response, name='demo_json'),
+    path('charts/api-demo/', views.api_chart_demo_page, name='api_chart_demo_page'),
+    path('api/charts/transactions.png', views.transaction_chart_from_api, name='api_transaction_chart'),
 ]

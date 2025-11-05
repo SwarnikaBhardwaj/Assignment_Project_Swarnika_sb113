@@ -11,6 +11,7 @@ from django.db.models import Sum, Count, Avg, Q
 from django.db.models.functions import TruncMonth
 from decimal import Decimal
 import threading
+import requests
 
 import matplotlib
 matplotlib.use('Agg')
@@ -420,4 +421,80 @@ def demo_json_response(request):
         'items': ['Idli', 'Dosa', 'Sambar']
     }
     return JsonResponse(data)
+
+def api_chart_demo_page(request):
+    return render(request, 'tracker/api_chart_demo.html')
+
+def home_view(request):
+    return redirect('transaction_insights')
+
+
+class CurrencyConverterView(View):
+    def get(self, request):
+        amount = request.GET.get('amount', '100')
+        target_currency = request.GET.get('to', 'EUR')
+        try:
+            amount = float(amount)
+        except ValueError:
+            return JsonResponse({
+                'ok': False,
+                'error': 'Amount must be a valid number'
+            }, status=400)
+        api_url = 'https://api.exchangerate-api.com/v4/latest/USD'
+        try:
+            response = requests.get(api_url, timeout=5)
+            response.raise_for_status()
+            data = response.json()
+            base_currency = data.get('base', 'USD')
+            rates = data.get('rates', {})
+            if target_currency not in rates:
+                return JsonResponse({
+                    'ok': False,
+                    'error': f'Currency {target_currency} not found'
+                }, status=404)
+            exchange_rate = rates[target_currency]
+            converted_amount = amount * exchange_rate
+            result = {
+                'ok': True,
+                'original_amount': amount,
+                'original_currency': base_currency,
+                'target_currency': target_currency,
+                'exchange_rate': exchange_rate,
+                'converted_amount': round(converted_amount, 2),
+                'last_updated': data.get('date', 'Unknown')
+            }
+            return JsonResponse(result)
+        except requests.exceptions.ConnectionError:
+            return JsonResponse({
+                'ok': False,
+                'error': 'Could not connect to exchange rate API'
+            }, status=502)
+
+
+def currency_converter_page(request):
+    result = None
+    error = None
+    if request.GET.get('amount'):
+        amount = request.GET.get('amount', '100')
+        target_currency = request.GET.get('to', 'EUR')
+        api_url = request.build_absolute_uri(
+            f'/external/currency/?amount={amount}&to={target_currency}'
+        )
+        response = requests.get(api_url, timeout=5)
+        response.raise_for_status()
+        result = response.json()
+        if not result.get('ok'):
+            error = result.get('error', 'Unknown error')
+            result = None
+    popular_currencies = [
+        'EUR', 'GBP', 'JPY', 'CAD', 'AUD',
+        'CHF', 'CNY', 'INR', 'MXN', 'BRL'
+    ]
+    return render(request, 'tracker/currency_converter.html', {
+        'result': result,
+        'error': error,
+        'currencies': popular_currencies,
+        'selected_amount': request.GET.get('amount', '100'),
+        'selected_currency': request.GET.get('to', 'EUR')
+    })
 
