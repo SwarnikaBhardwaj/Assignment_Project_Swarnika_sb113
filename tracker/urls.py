@@ -21,4 +21,6 @@ urlpatterns = [
     path('demo/json/', views.demo_json_response, name='demo_json'),
     path('charts/api-demo/', views.api_chart_demo_page, name='api_chart_demo_page'),
     path('api/charts/transactions.png', views.transaction_chart_from_api, name='api_transaction_chart'),
+    path('external/currency/', views.CurrencyConverterView.as_view(), name='currency_api'),
+    path('external/currency/page/', views.currency_converter_page, name='currency_converter_page'),
 ]
