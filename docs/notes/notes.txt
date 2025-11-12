@@ -127,3 +127,28 @@ what the final json looks like
 api limitations and quirks I noticed
 - the api updates rates once per day not in real time so if you check multiple times you get the same rates
 - if you request a currency that doesnt exist the api still returns 200 but that currency just wont be in the rates dict so i had to check for that
+- to do: include the ability to change the currency you want to convert from (and not hardcode it)
+
+A11 - Auth and Downloading reports
+how i generated csv and json files
+- for csv used pythons csv.writer writing directly to httpresponse with content_type text/csv
+- for json built list of dicts then used jsonresponse with indent equals 2 for pretty formatting
+- both get timestamped filenames using datetime.now with strftime so you can tell them apart
+what metadata and columns are included
+- csv has id, merchant, amount, category name, date, notes ordered by date descending
+- json has same fields wrapped in transactions array plus generated_at timestamp and record_count
+- used select_related for category to avoid n plus 1 query problem
+what summaries appear on reports page
+- spending by category shows total spent and transaction count per category sorted by highest spending
+- monthly spending shows last 6 months with total and count per month
+- three stat cards at top show overall transaction count, total spent, and average transaction amount
+what authentication protects and why it matters
+- authentication protects all transaction data, reports, charts, and exports so random people cant see your financial information
+what loginrequiredmixin and login_required do
+- login_required decorator and loginrequiredmixin check if users are logged in and redirect to login page if not
+purpose of the next query parameter
+- next parameter remembers which page you were trying to visit so after login it takes you back there instead of a generic page
+auth related settings
+- login_url is login, login_redirect_url is reports, logout_redirect_url is login in settings.py
+how i ensure new users are non staff non superuser
+- in signup view i explicitly set is_staff and is_superuser to false after creating the user to prevent admin access
