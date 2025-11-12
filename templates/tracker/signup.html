@@ -1,0 +1,81 @@
+{% extends "tracker/base.html" %}
+
+{% block title %}Sign up{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mt-5">
+    <div class="col-md-6">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">Create account</h4>
+            </div>
+            <div class="card-body">
+                {% if error %}
+                    <div class="alert alert-danger">
+                        {{ error }}
+                    </div>
+                {% endif %}
+
+                <form method="post">
+                    {% csrf_token %}
+
+                    <div class="mb-3">
+                        <label for="username" class="form-label">Username</label>
+                        <input type="text"
+                               class="form-control"
+                               id="username"
+                               name="username"
+                               required>
+                        <small class="form-text text-muted">
+                            Letters, numbers, and @/./+/-/_ only
+                        </small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email"
+                               class="form-control"
+                               id="email"
+                               name="email">
+                        <small class="form-text text-muted">
+                            Optional but recommended
+                        </small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="password1" class="form-label">Password</label>
+                        <input type="password"
+                               class="form-control"
+                               id="password1"
+                               name="password1"
+                               required>
+                        <small class="form-text text-muted">
+                            At least 8 characters
+                        </small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="password2" class="form-label">Confirm Password</label>
+                        <input type="password"
+                               class="form-control"
+                               id="password2"
+                               name="password2"
+                               required>
+                    </div>
+
+                    <button type="submit" class="btn btn-success w-100">
+                        Sign Up
+                    </button>
+                </form>
+
+                <hr class="my-4">
+
+                <p class="text-center text-muted mb-0">
+                    Already have an account?
+                    <a href="{% url 'login' %}">Log In</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
