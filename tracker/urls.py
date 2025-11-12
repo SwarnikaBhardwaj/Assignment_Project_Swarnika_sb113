@@ -1,9 +1,6 @@
 from django.urls import path
 from . import views
 
-from django.urls import path
-from . import views
-
 urlpatterns = [
     path("transactions/raw/", views.TransactionDetailView.as_view(), name="transactions_raw"),
     path("transactions/render/", views.TransactionListGenericView.as_view(), name="transactions_render"),
@@ -23,4 +20,10 @@ urlpatterns = [
     path('api/charts/transactions.png', views.transaction_chart_from_api, name='api_transaction_chart'),
     path('external/currency/', views.CurrencyConverterView.as_view(), name='currency_api'),
     path('external/currency/page/', views.currency_converter_page, name='currency_converter_page'),
+    path('reports/', views.reports_page, name='reports'),
+    path('export/transactions.csv', views.export_transactions_csv, name='export_transactions_csv'),
+    path('export/transactions.json', views.export_transactions_json, name='export_transactions_json'),
+    path('login/', views.login_view, name='login'),
+    path('logout/', views.logout_view, name='logout'),
+    path('signup/', views.signup_view, name='signup'),
 ]

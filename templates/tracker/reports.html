@@ -1,0 +1,125 @@
+{% extends "tracker/base.html" %}
+{% block title %}Reports & Exports{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h1>Reports & Data Export</h1>
+        <p class="text-muted">View summaries and download your transaction data</p>
+    </div>
+</div>
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Export Data</h5>
+            </div>
+            <div class="card-body">
+                <p>Download all your transactions in different formats:</p>
+                <a href="{% url 'export_transactions_csv' %}" class="btn btn-success me-2">
+                    <i class="bi bi-file-earmark-spreadsheet"></i> Download CSV
+                </a>
+                <a href="{% url 'export_transactions_json' %}" class="btn btn-info">
+                    <i class="bi bi-file-earmark-code"></i> Download JSON
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body text-center">
+                <h3 class="text-primary">{{ total_transactions }}</h3>
+                <p class="text-muted mb-0">Total Transactions</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body text-center">
+                <h3 class="text-success">${{ total_spent|floatformat:2 }}</h3>
+                <p class="text-muted mb-0">Total Spent</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body text-center">
+                <h3 class="text-info">${{ average_transaction|floatformat:2 }}</h3>
+                <p class="text-muted mb-0">Average Transaction</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Spending by Category</h5>
+            </div>
+            <div class="card-body">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Category</th>
+                            <th class="text-end">Total Spent</th>
+                            <th class="text-end">Transactions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in category_summary %}
+                        <tr>
+                            <td>{{ item.category__name }}</td>
+                            <td class="text-end">${{ item.total_spent|floatformat:2 }}</td>
+                            <td class="text-end">{{ item.transaction_count }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="3" class="text-center text-muted">
+                                No transactions yet
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Monthly Spending (Last 6 Months)</h5>
+            </div>
+            <div class="card-body">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Month</th>
+                            <th class="text-end">Total Spent</th>
+                            <th class="text-end">Transactions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in monthly_summary %}
+                        <tr>
+                            <td>{{ item.month|date:"F Y" }}</td>
+                            <td class="text-end">${{ item.total|floatformat:2 }}</td>
+                            <td class="text-end">{{ item.count }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="3" class="text-center text-muted">
+                                No monthly data available
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
