@@ -3,7 +3,7 @@ from django.shortcuts import render
 # Create your views here.
 def home(request): return HttpResponse("FinTrack is running 🪙")
 from django.template import loader
-
+import csv
 from django.views.generic import DetailView
 from .models import Transaction, Category
 from django.views.generic import ListView
@@ -12,6 +12,10 @@ from django.db.models.functions import TruncMonth
 from decimal import Decimal
 import threading
 import requests
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.models import User
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 import matplotlib
 matplotlib.use('Agg')
@@ -54,13 +58,13 @@ def transactions_render(request):
     })
 
 # this is going to be my base CBV
-class TransactionListBaseView(View):
+class TransactionListBaseView(LoginRequiredMixin, View):
     def get(self, request):
         qs = Transaction.objects.filter(user=request.user).order_by('-date', '-id') if request.user.is_authenticated else Transaction.objects.none()
         context = {'transactions': qs, 'title': 'Transactions Base CBV'}
         return render(request, 'tracker/transaction_list_base.html', context)
 
-class TransactionListGenericView(ListView):
+class TransactionListGenericView(LoginRequiredMixin, ListView):
     model = Transaction
     template_name = 'tracker/transaction_list_generic.html'
     context_object_name = 'transactions'
@@ -71,13 +75,12 @@ class TransactionListGenericView(ListView):
         return Transaction.objects.none()
 
 
-class TransactionDetailView(DetailView):
+class TransactionDetailView(LoginRequiredMixin, DetailView):
     model = Transaction
     template_name = 'tracker/transaction_detail.html'
     context_object_name = 'transaction'
 
-
-class TransactionInsightsView(ListView):
+class TransactionInsightsView(LoginRequiredMixin, ListView):
     model = Transaction
     template_name = 'tracker/transaction_insights.html'
     context_object_name = 'transactions'
@@ -169,8 +172,7 @@ class TransactionInsightsView(ListView):
 
 matplotlib_lock = threading.Lock()
 
-
-class MonthlySpendingChartView(View):
+class MonthlySpendingChartView(LoginRequiredMixin, View):
     def get(self, request):
         with matplotlib_lock:
             plt.close('all')
@@ -215,8 +217,7 @@ class MonthlySpendingChartView(View):
             finally:
                 plt.close(fig)
 
-
-class CategoryPieChartView(View):
+class CategoryPieChartView(LoginRequiredMixin, View):
     def get(self, request):
         with matplotlib_lock:
             plt.close('all')
@@ -259,8 +260,7 @@ class CategoryPieChartView(View):
             finally:
                 plt.close(fig)
 
-
-class ChartsOverviewView(TemplateView):
+class ChartsOverviewView(LoginRequiredMixin, TemplateView):
     template_name = 'tracker/charts_overview.html'
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -282,7 +282,7 @@ class ChartsOverviewView(TemplateView):
         context['category_breakdown'] = category_breakdown
         return context
 
-
+@login_required
 def transaction_create_fbv(request):
     if request.method == 'POST':
         form = TransactionCreateForm(request.POST)
@@ -300,8 +300,7 @@ def transaction_create_fbv(request):
         'form': form
     })
 
-
-class TransactionCreateCBV(FormView):
+class TransactionCreateCBV(LoginRequiredMixin, FormView):
     form_class = TransactionCreateForm
     template_name = 'tracker/create_cbv.html'
     success_url = reverse_lazy('transactions_render')
@@ -317,6 +316,7 @@ class TransactionCreateCBV(FormView):
 
 
 from .forms import TransactionSearchForm
+@login_required
 def transaction_search(request):
     form = TransactionSearchForm(request.GET)
     transactions = Transaction.objects.all()
@@ -345,6 +345,7 @@ from datetime import datetime, timedelta
 import urllib.request
 import json
 
+@login_required
 def api_transaction_summary(request):
     total_transactions = Transaction.objects.count()
     total_amount = Transaction.objects.aggregate(Sum('amount'))['amount__sum'] or 0
@@ -358,8 +359,7 @@ def api_transaction_summary(request):
     }
     return JsonResponse(data)
 
-
-class APITransactionsByCategory(View):
+class APITransactionsByCategory(LoginRequiredMixin, View):
     def get(self, request):
         category_data = Transaction.objects.values('category__name').annotate(
             total_spent=Sum('amount'),
@@ -379,32 +379,41 @@ class APITransactionsByCategory(View):
         return JsonResponse(response_data)
 
 
+@login_required
 def transaction_chart_from_api(request):
-    api_url = request.build_absolute_uri('/api/transactions/by-category/')
-    with urllib.request.urlopen(api_url) as response:
-        data = json.loads(response.read().decode())
-    categories = data['results']
-    category_names = [item['category'] for item in categories]
-    amounts = [item['total_spent'] for item in categories]
-    fig, ax = plt.subplots(figsize=(10, 6))
-    bars = ax.bar(category_names, amounts, color='#667eea', edgecolor='#764ba2', linewidth=2)
-    ax.set_ylabel('Total Spent ($)', fontsize=12, fontweight='bold')
-    ax.set_xlabel('Category', fontsize=12, fontweight='bold')
-    ax.set_title('Spending by Category (From API Data)', fontsize=14, fontweight='bold')
-    for bar in bars:
-        height = bar.get_height()
-        ax.text(bar.get_x() + bar.get_width() / 2., height,
-                f'${height:.2f}',
-                ha='center', va='bottom', fontsize=10)
-    plt.xticks(rotation=45, ha='right')
-    plt.tight_layout()
+    category_data = Transaction.objects.values('category__name').annotate(
+        total_spent=Sum('amount'),
+        transaction_count=Count('id')
+    ).order_by('-total_spent')
+    category_names = [item['category__name'] for item in category_data]
+    amounts = [float(item['total_spent']) for item in category_data]
+    if not category_names:
+        fig, ax = plt.subplots(figsize=(10, 6))
+        ax.text(0.5, 0.5, 'No transaction data available',
+                ha='center', va='center', fontsize=14)
+        ax.set_xlim(0, 1)
+        ax.set_ylim(0, 1)
+        ax.axis('off')
+    else:
+        fig, ax = plt.subplots(figsize=(10, 6))
+        bars = ax.bar(category_names, amounts, color='#667eea', edgecolor='#764ba2', linewidth=2)
+        ax.set_ylabel('Total Spent ($)', fontsize=12, fontweight='bold')
+        ax.set_xlabel('Category', fontsize=12, fontweight='bold')
+        ax.set_title('Spending by Category', fontsize=14, fontweight='bold')
+        for bar in bars:
+            height = bar.get_height()
+            ax.text(bar.get_x() + bar.get_width() / 2., height,
+                    f'${height:.2f}',
+                    ha='center', va='bottom', fontsize=10)
+        plt.xticks(rotation=45, ha='right')
+        plt.tight_layout()
     buffer = BytesIO()
     plt.savefig(buffer, format='png', dpi=120, bbox_inches='tight')
     buffer.seek(0)
     plt.close(fig)
     return HttpResponse(buffer.getvalue(), content_type='image/png')
 
-
+@login_required
 def demo_text_response(request):
     data = {
         'message': 'This is plain text',
@@ -414,6 +423,7 @@ def demo_text_response(request):
     json_string = json.dumps(data)
     return HttpResponse(json_string, content_type='text/plain')
 
+@login_required
 def demo_json_response(request):
     data = {
         'message': 'This is proper JSON',
@@ -422,14 +432,15 @@ def demo_json_response(request):
     }
     return JsonResponse(data)
 
+@login_required
 def api_chart_demo_page(request):
     return render(request, 'tracker/api_chart_demo.html')
 
+@login_required
 def home_view(request):
     return redirect('transaction_insights')
 
-
-class CurrencyConverterView(View):
+class CurrencyConverterView(LoginRequiredMixin, View):
     def get(self, request):
         amount = request.GET.get('amount', '100')
         target_currency = request.GET.get('to', 'EUR')
@@ -470,7 +481,7 @@ class CurrencyConverterView(View):
                 'error': 'Could not connect to exchange rate API'
             }, status=502)
 
-
+@login_required
 def currency_converter_page(request):
     result = None
     error = None
@@ -498,3 +509,130 @@ def currency_converter_page(request):
         'selected_currency': request.GET.get('to', 'EUR')
     })
 
+
+@login_required
+def export_transactions_csv(request):
+    response = HttpResponse(content_type='text/csv')
+    timestamp = datetime.now().strftime('%Y-%m-%d_%H-%M')
+    filename = f'transactions_{timestamp}.csv'
+    response['Content-Disposition'] = f'attachment; filename="{filename}"'
+    writer = csv.writer(response)
+    writer.writerow(['ID', 'Merchant', 'Amount', 'Category', 'Date', 'Notes'])
+    transactions = Transaction.objects.select_related('category').order_by('-date')
+    for transaction in transactions:
+        writer.writerow([
+            transaction.id,
+            transaction.merchant,
+            transaction.amount,
+            transaction.category.name,
+            transaction.date.strftime('%Y-%m-%d'),
+            transaction.notes or ''
+        ])
+    return response
+
+@login_required
+def export_transactions_json(request):
+    transactions = Transaction.objects.select_related('category').order_by('-date')
+    transactions_list = []
+    for transaction in transactions:
+        transactions_list.append({
+            'id': transaction.id,
+            'merchant': transaction.merchant,
+            'amount': float(transaction.amount),
+            'category': transaction.category.name,
+            'date': transaction.date.strftime('%Y-%m-%d'),
+            'notes': transaction.notes or ''
+        })
+    data = {
+        'generated_at': datetime.now().isoformat(),
+        'record_count': len(transactions_list),
+        'transactions': transactions_list
+    }
+    response = JsonResponse(
+        data,
+        json_dumps_params={'indent': 2}
+    )
+    timestamp = datetime.now().strftime('%Y-%m-%d_%H-%M')
+    filename = f'transactions_{timestamp}.json'
+    response['Content-Disposition'] = f'attachment; filename="{filename}"'
+    return response
+
+@login_required
+def reports_page(request):
+    category_summary = Transaction.objects.values(
+        'category__name'
+    ).annotate(
+        total_spent=Sum('amount'),
+        transaction_count=Count('id')
+    ).order_by('-total_spent')
+    monthly_summary = Transaction.objects.annotate(
+        month=TruncMonth('date')
+    ).values('month').annotate(
+        total=Sum('amount'),
+        count=Count('id')
+    ).order_by('-month')[:6]
+    totals = Transaction.objects.aggregate(
+        total_transactions=Count('id'),
+        total_spent=Sum('amount'),
+        average_transaction=Avg('amount')
+    )
+    context = {
+        'category_summary': category_summary,
+        'monthly_summary': monthly_summary,
+        'total_transactions': totals['total_transactions'] or 0,
+        'total_spent': totals['total_spent'] or 0,
+        'average_transaction': totals['average_transaction'] or 0,
+    }
+    return render(request, 'tracker/reports.html', context)
+
+def login_view(request):
+    if request.user.is_authenticated:
+        return redirect('reports')
+    error = None
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            login(request, user)
+            next_url = request.GET.get('next', 'reports')
+            return redirect(next_url)
+        else:
+            error = 'Invalid username or password'
+    return render(request, 'tracker/login.html', {'error': error})
+
+def signup_view(request):
+    if request.user.is_authenticated:
+        return redirect('reports')
+    error = None
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        email = request.POST.get('email')
+        password1 = request.POST.get('password1')
+        password2 = request.POST.get('password2')
+        if not username or not password1:
+            error = 'Username and password are required'
+        elif password1 != password2:
+            error = 'Passwords do not match'
+        elif len(password1) < 8:
+            error = 'Password must be at least 8 characters'
+        elif User.objects.filter(username=username).exists():
+            error = 'Username already taken'
+        elif email and User.objects.filter(email=email).exists():
+            error = 'Email already registered'
+        else:
+            user = User.objects.create_user(
+                username=username,
+                email=email,
+                password=password1
+            )
+            user.is_staff = False
+            user.is_superuser = False
+            user.save()
+            login(request, user)
+            return redirect('reports')
+    return render(request, 'tracker/signup.html', {'error': error})
+
+def logout_view(request):
+    logout(request)
+    return redirect('login')
